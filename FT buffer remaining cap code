@@ -238,7 +238,6 @@ def aplicar_formato_excel(fecha, df_base, df_f, df_g):
 # ==================================================
 
 def main():
-    print(f"Sistema operativo: {platform.system()}")
     print(f"Ruta del Excel: {RUTA_EXCEL}")
     print(f"Directorio actual: {os.getcwd()}")
     
