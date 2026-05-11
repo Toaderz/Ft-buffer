@@ -2,8 +2,8 @@ name: FT Buffer - Actualizar ETFs
 
 on:
   schedule:
-    # Todos los lunes a las 9:00 AM CST (UTC-6)
-    # En UTC: 15:00 = 9:00 AM CST
+    # Todos los lunes a las 9:00 AM hora de Mexico (CST/CDT)
+    # En UTC: 15:00 = 9:00 AM CST (Mexico)
     - cron: '0 15 * * 1'
   
   # Tambien permite ejecucion manual para pruebas
@@ -46,12 +46,12 @@ jobs:
         username: ${{ secrets.EMAIL_USER }}
         password: ${{ secrets.EMAIL_PASSWORD }}
         subject: "FT Buffer Actualizado - ${{ github.event.repository.updated_at }}"
-        to: Alejandro.jimenez@evolveam.com.mx
+        to: ana.pacheco@evolveam.com.mx
         from: ${{ secrets.EMAIL_USER }}
         html_body: |
           <html>
           <body style="font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6; color: #333;">
-            <p>Hola Alejandro,</p>
+            <p>Hola Ana,</p>
             
             <p>Te mando los FT buffers actualizados.</p>
             
