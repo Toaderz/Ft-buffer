@@ -50,8 +50,8 @@ jobs:
         from: ${{ secrets.EMAIL_USER }}
         html_body: |
           <html>
-          <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-            <h2 style="color: #2c5282;">Hola Alejandro,</h2>
+          <body style="font-family: Arial, sans-serif; font-size: 14px; line-height: 1.6; color: #333;">
+            <p>Hola Alejandro,</p>
             
             <p>Te mando los FT buffers actualizados.</p>
             
