@@ -38,7 +38,7 @@ jobs:
         path: FT_buffer_remaining_cap.xlsx
         retention-days: 7
     
-    - name: Enviar email
+    - name: Enviar email con Excel adjunto
       uses: dawidd6/action-send-mail@v3
       with:
         server_address: smtp.gmail.com
@@ -46,17 +46,15 @@ jobs:
         username: ${{ secrets.EMAIL_USER }}
         password: ${{ secrets.EMAIL_PASSWORD }}
         subject: "FT Buffer Actualizado"
-        to: ana.pacheco@evolveam.com.mx
+        to: Alejandro.jimenez@evolveam.com.mx
         from: ${{ secrets.EMAIL_USER }}
         html_body: |
           <html>
           <body style="font-family: Arial, sans-serif;">
             <h2>FT Buffer - Actualizacion de ETFs</h2>
             <p>Los ETFs de FT Buffer han sido actualizados.</p>
-            <p>Fecha: ${{ github.event.repository.updated_at }}</p>
-            <p>Puedes descargar el Excel desde la seccion de artefactos del workflow.</p>
-            <p><a href="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}#artifacts">Ver detalles y descargar Excel</a></p>
+            <p>El archivo Excel esta adjunto en este correo.</p>
           </body>
           </html>
-        
         convert_markdown: false
+        attachments: FT_buffer_remaining_cap.xlsx
