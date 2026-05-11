@@ -45,15 +45,66 @@ jobs:
         server_port: 465
         username: ${{ secrets.EMAIL_USER }}
         password: ${{ secrets.EMAIL_PASSWORD }}
-        subject: "FT Buffer Actualizado"
+        subject: "Actualización semanal - FT Buffer Remaining Cap"
         to: Alejandro.jimenez@evolveam.com.mx
         from: ${{ secrets.EMAIL_USER }}
         html_body: |
           <html>
-          <body style="font-family: Arial, sans-serif;">
-            <h2>FT Buffer - Actualizacion de ETFs</h2>
-            <p>Los ETFs de FT Buffer han sido actualizados.</p>
-            <p>El archivo Excel esta adjunto en este correo.</p>
+          <head>
+            <style>
+              body { font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.6; color: #333; }
+              .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+              .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 10px 10px 0 0; }
+              .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+              .highlight { background: #e8f4f8; padding: 15px; border-left: 4px solid #667eea; margin: 20px 0; }
+              .footer { margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; font-size: 12px; color: #666; }
+              h1 { margin: 0; font-size: 24px; }
+              h2 { color: #667eea; margin-top: 0; }
+              .date { font-size: 14px; opacity: 0.9; margin-top: 10px; }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <div class="header">
+                <h1>FT Buffer - Actualización Semanal</h1>
+                <div class="date">${{ github.event.repository.updated_at }}</div>
+              </div>
+              
+              <div class="content">
+                <p>Estimado equipo,</p>
+                
+                <p>Les comparto la actualización semanal del <strong>FT Buffer Remaining Cap</strong> correspondiente a esta semana.</p>
+                
+                <div class="highlight">
+                  <h3>📊 Resumen de la actualización:</h3>
+                  <ul>
+                    <li>✅ Datos actualizados de los ETFs F y G</li>
+                    <li>📈 Remaining Buffer y Cap calculados</li>
+                    <li>📊 Fund Value/Return y Reference Asset Value incluidos</li>
+                    <li>📉 Downside Before Buffer actualizado</li>
+                  </ul>
+                </div>
+                
+                <p>El archivo Excel adjunto contiene:</p>
+                <ul>
+                  <li><strong>Hoja "Datos ETFs"</strong> - Información completa de todos los ETFs</li>
+                  <li><strong>Hoja "Resumen F"</strong> - ETFs tipo F (FJAN a FDEC)</li>
+                  <li><strong>Hoja "Resumen G"</strong> - ETFs tipo G (GJAN a GDEC)</li>
+                </ul>
+                
+                <p>Los datos fueron extraídos directamente de la página oficial de First Trust Portfolios y procesados automáticamente.</p>
+                
+                <p>Si tienen alguna pregunta o necesitan análisis adicional, no duden en contactarme.</p>
+                
+                <p>Saludos cordiales,<br>
+                <strong>Sistema Automatizado FT Buffer</strong></p>
+                
+                <div class="footer">
+                  <p>Este es un correo automático generado por el sistema de FT Buffer.<br>
+                  Repositorio: <a href="${{ github.server_url }}/${{ github.repository }}">${{ github.repository }}</a></p>
+                </div>
+              </div>
+            </div>
           </body>
           </html>
         convert_markdown: false
