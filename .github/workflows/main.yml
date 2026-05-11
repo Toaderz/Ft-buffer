@@ -8,11 +8,6 @@ on:
   
   # Tambien permite ejecucion manual para pruebas
   workflow_dispatch:
-    inputs:
-      test_email:
-        description: 'Email de prueba (opcional)'
-        required: false
-        default: 'ana.pacheco@evolveam.com.mx'
 
 jobs:
   actualizar-etfs:
@@ -32,116 +27,36 @@ jobs:
         python -m pip install --upgrade pip
         pip install requests beautifulsoup4 pandas openpyxl lxml
     
-    - name: Ejecutar script de FT Buffer
-      id: ejecutar
+    - name: Ejecutar script
       run: |
-        # Ejecutar el script (nota: el archivo tiene espacios en el nombre)
-        python "FT buffer remaining cap code" 2>&1 | tee output.log
-        exit_code=${PIPESTATUS[0]}
-        echo "SCRIPT_EXIT_CODE=$exit_code" >> $GITHUB_ENV
-        if [ $exit_code -ne 0 ]; then
-          echo "El script fallo con codigo $exit_code"
-          exit 0  # No fallar el step, continuamos para enviar email
-        fi
-      continue-on-error: true
-    
-    - name: Preparar resultado
-      id: resultado
-      run: |
-        # Extraer las ultimas 50 lineas del output para el email
-        tail -n 50 output.log > email_content.txt 2>/dev/null || true
-        
-        # Verificar si el Excel se genero
-        if [ -f "FT_buffer_remaining_cap.xlsx" ]; then
-          echo "EXCEL_GENERATED=true" >> $GITHUB_ENV
-          size=$(stat -c%s "FT_buffer_remaining_cap.xlsx" 2>/dev/null || echo "0")
-          echo "EXCEL_SIZE=$size" >> $GITHUB_ENV
-        else
-          echo "EXCEL_GENERATED=false" >> $GITHUB_ENV
-          echo "EXCEL_SIZE=0" >> $GITHUB_ENV
-        fi
-        
-        # Verificar si hubo errores
-        if grep -q "ERROR\|error\|Error\|SameFileError\|fallo" output.log 2>/dev/null; then
-          echo "HAS_ERRORS=true" >> $GITHUB_ENV
-        else
-          echo "HAS_ERRORS=false" >> $GITHUB_ENV
-        fi
-        
-        # Extraer fecha si esta disponible
-        FECHA=$(grep "Fecha:" output.log 2>/dev/null | tail -1 || echo "Hoy")
-        echo "FECHA=$FECHA" >> $GITHUB_ENV
-        
-        # Extraer ETFs procesados - contar "Procesando" en el output
-        ETF_COUNT=$(grep -c "Procesando" output.log 2>/dev/null || echo "0")
-        echo "ETF_COUNT=$ETF_COUNT" >> $GITHUB_ENV
+        python "FT buffer remaining cap code"
     
     - name: Subir Excel como artefacto
-      if: always()
       uses: actions/upload-artifact@v4
       with:
-        name: FT-Buffer-Excel-${{ github.run_id }}
+        name: FT-Buffer-Excel
         path: FT_buffer_remaining_cap.xlsx
         retention-days: 7
-        if-no-files-found: warn
     
-    - name: Subir logs como artefacto
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: ft-buffer-logs-${{ github.run_id }}
-        path: |
-          output.log
-          email_content.txt
-        retention-days: 7
-        if-no-files-found: warn
-    
-    - name: Enviar email de confirmacion
-      if: always()
+    - name: Enviar email
       uses: dawidd6/action-send-mail@v3
       with:
         server_address: smtp.gmail.com
         server_port: 465
         username: ${{ secrets.EMAIL_USER }}
         password: ${{ secrets.EMAIL_PASSWORD }}
-        subject: "FT Buffer Actualizado - ${{ github.run_id }}"
-        to: ${{ github.event.inputs.test_email || 'ana.pacheco@evolveam.com.mx' }}
+        subject: "FT Buffer Actualizado"
+        to: ana.pacheco@evolveam.com.mx
         from: ${{ secrets.EMAIL_USER }}
         html_body: |
           <html>
-          <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
-            <h2 style="color: #2c5282;">FT Buffer - Actualizacion de ETFs</h2>
-            
-            <p><strong>Fecha:</strong> ${{ env.FECHA || 'Hoy' }}</p>
-            
-            <p><strong>Estado:</strong> 
-              ${{ env.HAS_ERRORS == 'true' && '<span style="color: #c62828;">Completado con errores</span>' || '<span style="color: #2e7d32;">Completado exitosamente</span>' }}
-            </p>
-            
-            <p><strong>ETFs Procesados:</strong> ${{ env.ETF_COUNT || 'N/A' }}</p>
-            
-            <p><strong>Excel Generado:</strong> 
-              ${{ env.EXCEL_GENERATED == 'true' && '<span style="color: #2e7d32;">Si</span>' || '<span style="color: #c62828;">No</span>' }}
-            </p>
-            
-            <div style="background: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
-              <h3 style="margin-top: 0;">Output del script:</h3>
-              <pre style="background: white; padding: 10px; border-radius: 3px; overflow-x: auto; max-height: 400px; overflow-y: auto;">${{ env.HAS_ERRORS == 'true' && '<span style="color: #c62828;">Ver detalles del error en los logs</span>' || 'Script ejecutado correctamente' }}</pre>
-            </div>
-            
-            <p style="margin-top: 30px; font-size: 12px; color: #666;">
-              Este es un mensaje automatico del sistema FT Buffer.<br>
-              Repositorio: <a href="${{ github.server_url }}/${{ github.repository }}">${{ github.repository }}</a><br>
-              Workflow Run: <a href="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}">Ver detalles</a><br>
-              Excel: <a href="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}#artifacts">Descargar Excel</a>
-            </p>
+          <body style="font-family: Arial, sans-serif;">
+            <h2>FT Buffer - Actualizacion de ETFs</h2>
+            <p>Los ETFs de FT Buffer han sido actualizados.</p>
+            <p>Fecha: ${{ github.event.repository.updated_at }}</p>
+            <p>Puedes descargar el Excel desde la seccion de artefactos del workflow.</p>
+            <p><a href="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}#artifacts">Ver detalles y descargar Excel</a></p>
           </body>
           </html>
         
         convert_markdown: false
-    
-    - name: Notificar si fallo
-      if: failure()
-      run: |
-        echo "El workflow fallo. Revisa los logs en:"
-        echo "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"

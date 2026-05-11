@@ -3,48 +3,17 @@ from bs4 import BeautifulSoup
 import pandas as pd
 import re
 import os
-import sys
-import platform
 from openpyxl import load_workbook
 from openpyxl.styles import Font, Alignment
 from openpyxl.worksheet.table import Table, TableStyleInfo
 from openpyxl.worksheet.filters import AutoFilter, FilterColumn
 
 # ==================================================
-# CONFIGURACIÓN GENERAL - DETECTA SISTEMA OPERATIVO
+# CONFIGURACION GENERAL
 # ==================================================
 
-def get_excel_path():
-    """Detecta el sistema operativo y retorna la ruta apropiada"""
-    # Detectar si estamos en GitHub Actions
-    if os.environ.get('GITHUB_ACTIONS') == 'true':
-        # En GitHub Actions, guardar en el workspace
-        return "FT_buffer_remaining_cap.xlsx"
-    
-    # Detectar sistema operativo
-    system = platform.system()
-    
-    if system == "Windows":
-        # Ruta original de Windows
-        return r"C:\Users\AleJi\OneDrive\Documentos\chamba\capella\Codigo Evolve\FT\FT buffer remaining cap.xlsx"
-    elif system == "Linux":
-        # En Linux (local o servidor)
-        home = os.path.expanduser("~")
-        return os.path.join(home, "FT_buffer_remaining_cap.xlsx")
-    elif system == "Darwin":  # macOS
-        home = os.path.expanduser("~")
-        return os.path.join(home, "Documents", "FT_buffer_remaining_cap.xlsx")
-    else:
-        # Fallback
-        return "FT_buffer_remaining_cap.xlsx"
-
-# Ruta del Excel final
-RUTA_EXCEL = get_excel_path()
-
-# Crear directorio si es necesario
-excel_dir = os.path.dirname(RUTA_EXCEL)
-if excel_dir:  # Solo crear si hay directorio (no para rutas relativas simples)
-    os.makedirs(excel_dir, exist_ok=True)
+# Ruta del Excel final (relativa, funciona en cualquier sistema)
+RUTA_EXCEL = "FT_buffer_remaining_cap.xlsx"
 
 # Inputs del scraping
 TICKERS_F = ["FJAN","FFEB","FMAR","FAPR","FMAY","FJUN","FJUL","FAUG","FSEP","FOCT","FNOV","FDEC"]
@@ -292,27 +261,19 @@ def main():
     escribir_excel(df_base, df_f, df_g)
     aplicar_formato_excel(fecha_global, df_base, df_f, df_g)
 
-    # Verificar que el archivo se creó
+    # Verificar que el archivo se creo
     if os.path.exists(RUTA_EXCEL):
         size = os.path.getsize(RUTA_EXCEL)
-        print(f"✓ Excel generado: {RUTA_EXCEL} ({size} bytes)")
+        print(f"Excel generado: {RUTA_EXCEL} ({size} bytes)")
     else:
-        print(f"✗ Error: No se encontró el archivo {RUTA_EXCEL}")
-        sys.exit(1)
+        print(f"Error: No se encontro el archivo {RUTA_EXCEL}")
+        exit(1)
 
     print("Proceso terminado | Fecha:", fecha_global)
-    
-    # Si estamos en GitHub Actions, copiar el archivo al directorio de salida
-    if os.environ.get('GITHUB_ACTIONS') == 'true':
-        output_dir = os.environ.get('GITHUB_WORKSPACE', '.')
-        output_file = os.path.join(output_dir, 'FT_buffer_remaining_cap.xlsx')
-        # Solo copiar si las rutas son diferentes
-        if os.path.exists(RUTA_EXCEL) and os.path.abspath(RUTA_EXCEL) != os.path.abspath(output_file):
-            import shutil
-            shutil.copy2(RUTA_EXCEL, output_file)
-            print(f"Excel copiado a: {output_file}")
-        else:
-            print(f"Excel ya esta en: {RUTA_EXCEL}")
+
+
+if __name__ == "__main__":
+    main()
 
 
 if __name__ == "__main__":
