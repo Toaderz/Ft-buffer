@@ -121,7 +121,7 @@ jobs:
             <p><strong>ETFs Procesados:</strong> ${{ env.ETF_COUNT || 'N/A' }}</p>
             
             <p><strong>Excel Generado:</strong> 
-              ${{ env.EXCEL_GENERATED == 'true' && '<span style="color: #2e7d32;">Si (' + env.EXCEL_SIZE + ' bytes)</span>' || '<span style="color: #c62828;">No</span>' }}
+              ${{ env.EXCEL_GENERATED == 'true' && '<span style="color: #2e7d32;">Si</span>' || '<span style="color: #c62828;">No</span>' }}
             </p>
             
             <div style="background: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
